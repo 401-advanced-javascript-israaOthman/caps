@@ -3,15 +3,13 @@
 require('dotenv').config();
 const events = require('./events');
 const faker = require('faker');
-require('./caps');
-require('./driver');
 
 const storeName = process.env.storeName;
 
 events.on('delivered',consolThanks);
 
 function consolThanks(payload) {
-  console.log(`Thank you for delivering ${payload.orderId}`);
+  console.log(`VENDOR: Thank you for delivering ${payload.orderId}`);
 }
 
 
