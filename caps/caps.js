@@ -40,7 +40,7 @@ function dispatchEvent(buffer){
   switch(obj.event){
   case 'pickup':
   case 'in-transit':
-  case 'deliverd':
+  case 'delivered':
     console.log('EVENT ',obj);
     broadcast(obj);
     break;

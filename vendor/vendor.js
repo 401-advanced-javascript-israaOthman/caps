@@ -25,7 +25,7 @@ client.on('data',function(data){
   }
 });
 
-setInterval(pickInfo, 5000);
+let interval = setInterval(pickInfo, 5000);
 
 function pickInfo() {
   let obj = {storeName: storeName,
@@ -38,4 +38,7 @@ function pickInfo() {
 }
 
 
-
+client.on('end',()=>{
+  clearInterval(interval);
+  console.log('connection ended');
+});
