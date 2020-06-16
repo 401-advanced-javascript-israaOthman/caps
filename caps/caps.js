@@ -37,8 +37,17 @@ server.on('error', (e) => {
 
 function dispatchEvent(buffer){
   let obj = JSON.parse(buffer.toString().trim());
-  console.log('EVENT ',obj);
-  broadcast(obj);
+  switch(obj.event){
+  case 'pickup':
+  case 'in-transit':
+  case 'deliverd':
+    console.log('EVENT ',obj);
+    broadcast(obj);
+    break;
+  default :
+    console.log('ignore it ..');
+  }
+
 }
 
 
