@@ -1,39 +1,18 @@
 'use strict';
 
-const net = require('net'); 
+const io = require('socket.io-client');
+const socket = io.connect('http://localhost:3000/caps');
 
-const client = net.Socket();
+socket.on('pickup',payload=>{
+  setTimeout(()=>{
+    console.log(`DRIVER: picked up ${payload.orderId}`);
+    socket.emit('in-transit', payload);
+  }, 1000);
 
-const HOST = process.env.HOST || 'localhost';
-const PORT = process.env.PORT || 3030;
-let timeout1;
-let timeout2;
+  setTimeout(()=>{
+    console.log(`deliverd ${payload.orderId}`);
+    socket.emit('deliverd',payload);
 
-client.connect(PORT,HOST,()=>{
-  console.log('Driver got connected');
+  }, 3000);
+
 });
-
-client.on('data',function(data){
-  let obj = JSON.parse(data);
-  if (obj.event == 'pickup'){
-    timeout1= setTimeout(()=>{
-      console.log(`DRIVER: picked up ${obj.payload.orderId}`);
-      let message = JSON.stringify({event:'in-transit', payload:obj.payload});
-      client.write(message);
-    }, 1000);
-
-    timeout2= setTimeout(()=>{
-      let msg = JSON.stringify({event:'delivered', payload:obj.payload});
-      client.write(msg);
-    }, 3000);
-  }
-});
-
-client.on('end',()=>{
-  clearTimeout(timeout1);
-  clearTimeout(timeout2);
-  console.log('connection ended');
-});
-
-
-
