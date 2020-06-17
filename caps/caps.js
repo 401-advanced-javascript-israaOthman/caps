@@ -1,62 +1,41 @@
 'use strict';
-//***************************** */
-require('dotenv').config();
 
+// const uuid = require('uuid-random');
+const io = require('socket.io')(3000);
 
-const net = require('net');
-const uuid = require('uuid-random');
+io.on('connection',(socket)=>{
+  console.log('CORE',socket.io);
+});
 
-const PORT = process.env.PORT || 3030;
-const server = net.createServer();
+const caps = io.of('/caps');
+caps.on('connection',(socket)=>{
+  console.log('Connected',socket.id);
 
-server.listen(PORT,()=> console.log(`listning to port ${PORT}`));
+  socket.on('join',room =>{
+    console.log('registerd as ',room);
+    socket.join(room);
+  });
 
+  socket.on('pickup',payload=>{
+    logIt('pickup',payload);
+    caps.emit('pickup',payload);
+  });
 
-let sockeetPool ={};
+  socket.on('in-transit',payload=>{
+    logIt('in-transit',payload);
+    caps.to(payload.storeName).emit('in-transit',payload);
+  });
 
-server.on('connection',(socket)=>{
-  
-  const id = `Socket-${uuid()}`; 
-  console.log(`client with ID : ${id} is connected!!! `);
-  sockeetPool[id] = socket;
-  socket.on('data',(buffer)=> dispatchEvent(buffer));
-
-  socket.on('error', (e) => { console.log('SOCKET ERR', e); });
-
-  socket.on('end', (end) => {
-    console.log('connection ended', end);
-    delete sockeetPool[id];
+  socket.on('deliverd',payload=>{
+    logIt('deliverd',payload);
+    caps.to(payload.storeName).emit('deliverd',payload);
   });
 
 });
 
-server.on('error', (e) => {
-  console.log('SERVER ERROR', e);
-});
+function logIt(event,payload){
+  let time = new Date();
+  console.log('EVENT: ',{time,event,payload});
 
-
-function dispatchEvent(buffer){
-  let obj = JSON.parse(buffer.toString().trim());
-  switch(obj.event){
-  case 'pickup':
-  case 'in-transit':
-  case 'delivered':
-    console.log('EVENT ',obj);
-    broadcast(obj);
-    break;
-  default :
-    console.log('ignore it ..');
-  }
-
-}
-
-
-
-
-function broadcast(obj){
-  let strObj = JSON.stringify(obj);
-  for(let socket in sockeetPool){
-    sockeetPool[socket].write(strObj);
-  }
 }
 
