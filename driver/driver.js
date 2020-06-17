@@ -10,8 +10,8 @@ socket.on('pickup',payload=>{
   }, 1000);
 
   setTimeout(()=>{
-    console.log(`delivered ${payload.orderId}`);
-    socket.emit('delivered',payload);
+    console.log(`deliverd ${payload.orderId}`);
+    socket.emit('deliverd',payload);
 
   }, 3000);
 
